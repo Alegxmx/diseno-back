@@ -18,11 +18,20 @@ class CustomRegister(mutations.Register):
         else:
             raise ValueError("Username and/or email already exist")
 
+class CustomTokenAuth(mutations.ObtainJSONWebToken):
+    class Input:
+        username = graphene.String(required=True)
+        password = graphene.String(required=True)
+
+    @classmethod
+    def perform_mutation(cls, root, info, username, password, **kwargs):
+        return cls.resolve(cls, root, info, username=username, password=password)
+
 class Query(MeQuery, graphene.ObjectType):
     pass
 
 class Mutation(graphene.ObjectType):
     register = CustomRegister.Field()
+    token_auth = CustomTokenAuth.Field()
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
-
